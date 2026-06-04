@@ -1,0 +1,88 @@
+#==============================================================================
+# config — ZFS-gdrsync User Configuration
+#==============================================================================
+#
+# Edit these values to match your environment.
+# All values here survive OS updates — they live on /boot/config/.
+#
+# The install.sh script reads these and uses them to configure everything.
+# You only need to edit this file — not the scripts themselves.
+#
+#==============================================================================
+
+# ---- SOURCE DATASET ----
+# Pool and dataset to back up. No leading slash, no /mnt/ prefix.
+# Example: source_pool="cache", source_dataset="appdata" → backs up cache/appdata
+source_pool="cache"
+source_dataset="appdata"
+
+# Auto-select all child datasets of source_dataset? ("yes" or "no")
+# If "yes", all child datasets (cache/appdata/binhex-*, cache/appdata/immich, etc.)
+# are processed individually with their own state tracking.
+# If "no", only the parent dataset itself is processed.
+source_dataset_auto_select="yes"
+
+# Exclude child datasets whose name starts with this prefix (optional, leave empty to process all)
+# Example: source_dataset_auto_select_exclude_prefix="binhex-" (excludes all binhex-* datasets)
+source_dataset_auto_select_exclude_prefix=""
+
+# ---- SNAPSHOT RETENTION (Sanoid local policy) ----
+# How many daily/weekly/monthly snapshots Sanoid keeps locally.
+# These match the sanoid.conf settings. Adjust as needed.
+snapshot_days="7"
+snapshot_weeks="4"
+snapshot_months="3"
+
+# ---- GOOGLE DRIVE CONFIGURATION ----
+# rclone remote name (set when you run: rclone config)
+# Must match whatever name you gave in rclone config (default: gdrive)
+rclone_remote="gdrive"
+
+# Root folder on GDrive where ZFS archives are stored
+# Example: "zfs-archives" → files appear at gdrive:zfs-archives/cache/appdata/...
+gdrive_root="zfs-archives"
+
+# How many days of GDrive archives to keep before pruning old ones
+# Set to 0 to disable GDrive-side pruning (keep forever)
+#
+# PRUNE POLICY:
+#   - All files within this window: kept regardless of type
+#   - Full snapshots older than this window: DELETE, EXCEPT the most recent full
+#     is always kept (it is the restore anchor no matter how old)
+#   - Incremental snapshots older than this window: DELETE (never a restore base)
+#
+# Example with gdrive_full_backup_days=7 and gdrive_retention_days=14:
+#   Day 7:   Full_A created  → Full_A is most recent full, kept
+#   Day 14:  Full_B created → Full_A is 7 days old (within window), kept as non-most-recent
+#            Full_A becomes 8 days old on day 15, still within window
+#   Day 21:  Full_C created → Full_A is now 14 days old, at threshold
+#            Full_B is 7 days old, within window
+#            Full_C is most recent full, kept
+#            Full_A is deleted (was most-recent-full on day 21, but not most-recent on day 22)
+gdrive_retention_days="14"
+
+# How often to do a FULL send (no incremental).
+# A FULL snapshot is the base for the subsequent incremental chain.
+# Recommended: 7 (weekly, every Sunday) matches typical restore needs.
+# Set to 1 for daily fulls (more storage, faster restore to any single day).
+# The oldest full snapshot is never deleted if it still has incrementals
+# that depend on it as a base — so the restore chain is always intact.
+gdrive_full_backup_days="7"
+
+# ---- SNAPSHOT CREATION ----
+# Set to "yes" to have zfs-gdrsync create its own snapshots via Sanoid before syncing.
+# Set to "no" ONLY if you have a separate, verified Sanoid cron already running.
+# On most Unraid systems "no" means the backup silently does nothing every night —
+# no external Sanoid cron exists by default.
+autosnapshots="yes"
+
+# ---- NOTIFICATIONS ----
+# Controls when Unraid GUI notifications are sent.
+#   "all"    — notifications for both successes and failures
+#   "error"  — notifications only for failures
+#   "none"   — suppress all notifications
+notification_type="all"
+
+# Play a beep tune on success/failure? ("yes" or "no")
+# Requires 'beep' package on Unraid (optional).
+notify_tune="no"

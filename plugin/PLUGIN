@@ -1,0 +1,47 @@
+<?xml version='1.0' standalone='yes'?>
+<!DOCTYPE PLUGIN [
+<!ENTITY name       "zfs-gdrsync">
+<!ENTITY author     "BoiledFunn">
+<!ENTITY version    "1.1.0">
+<!ENTITY pluginURL  "https://github.com/BoiledFunn/unraid-zfs-gdrsync/releases/download/v1.1.0/zfs-gdrsync-1.1.0.plg">
+<!ENTITY supportURL "https://github.com/BoiledFunn/unraid-zfs-gdrsync">
+]>
+
+<PLUGIN name="&name;" author="&author;" version="&version;" pluginURL="&pluginURL;" support="&supportURL;" min="6.11.0">
+<CHANGES>
+###1.1.0
+- Fix: remove -r flag from newest_snapshot() and find_base_snapshot_for_incremental() — parent datasets now upload correctly
+- Fix: config source ordering — all defaults use ${var:-default} so user config values are no longer silently overridden
+- Fix: autosnapshots default changed from "no" to "yes" — backups now work on fresh installs without manual config editing
+- Fix: --dry-run no longer writes to state file, preventing broken incremental chains
+- Fix: install.sh adds /boot/config/go entries for reboot persistence — scripts survive reboots without manual intervention
+- Fix: rclone config path corrected to /boot/config/rclone/rclone.conf (persistent across reboots)
+- Fix: sanoid/sanoid.conf reduced to dataset-only section — no longer duplicates template sections in system sanoid.conf
+- Fix: uninstall.sh removes go file entries and references correct rclone path
+- Fix: config variable name source_dataset_auto_select_exclude corrected to source_dataset_auto_select_exclude_prefix
+- Docs: added Critical Notes section covering boot persistence, rclone path, autosnapshots, Google Advanced Protection Program, and service account auth setup
+###1.0.8
+- Fix: Unversioned zfs-gdrsync.plg added at repo root — Unraid update detection now works
+- Fix: Self-healing on reboot — rclone config symlink and sanoid global config are recreated if missing
+###1.0.7
+- Fix: incremental sends now marked with _I_ suffix in filename — enables prune logic to distinguish full vs incremental archives
+- Fix: corrected typo in log message (undefined variable days_since_full_ge)
+- Change: rewrite prune_gdrive_dataset() to implement: keep most recent full snapshot always (no age limit), prune full snapshots older than gdrive_retention_days, prune old incrementals
+- Docs: added detailed prune policy explanation to plugin/config comments
+###1.0.6
+- Fix: install script deploys to /root/zfs-gdrsync/ (ext4) as canonical location — FAT32 /boot does not support execute bits
+- Fix: User Scripts entry now points to /root/zfs-gdrsync/zfs-gdrsync.sh
+- Docs: updated all manual command examples to use /root/zfs-gdrsync/ path
+- Uninstall: now removes /root/zfs-gdrsync/zfs-gdrsync.sh
+###1.0.5
+- Fix: removed Mode attribute from FILE elements — chmod fails on FAT boot filesystem (no Unix permissions)
+</CHANGES>
+<FILE Name="/boot/config/plugins/zfs-gdrsync/install.sh" URL="https://raw.githubusercontent.com/BoiledFunn/unraid-zfs-gdrsync/v1.1.0/plugin/install.sh" SHA256="c5210e5f3cc3317993c4b0d276dd5024afbb65fb1449f49ebe1901b97197ac83"/>
+<FILE Name="/boot/config/plugins/zfs-gdrsync/uninstall.sh" URL="https://raw.githubusercontent.com/BoiledFunn/unraid-zfs-gdrsync/v1.1.0/plugin/uninstall.sh" SHA256="693a907180362a29cef85186e19161217245c19d452020b4eb17ce39aa8c0f7a"/>
+<FILE Name="/boot/config/plugins/zfs-gdrsync/config" URL="https://raw.githubusercontent.com/BoiledFunn/unraid-zfs-gdrsync/v1.1.0/plugin/config" SHA256="3f04787887d31e770fca66777c1ee20067ab67e8067c4a286335c318c747d9d3"/>
+<FILE Name="/boot/config/plugins/zfs-gdrsync/README.md" URL="https://raw.githubusercontent.com/BoiledFunn/unraid-zfs-gdrsync/v1.1.0/plugin/README.md" SHA256="e6ab0edd703a4b1ce5ca7484cc0572ac347a7b30082c60adecc118f2eb56c434"/>
+<FILE Name="/boot/config/plugins/zfs-gdrsync/scripts/snap-pre.sh" URL="https://raw.githubusercontent.com/BoiledFunn/unraid-zfs-gdrsync/v1.1.0/plugin/scripts/snap-pre.sh" SHA256="6f1b8e7c6c9c94fbd80abc8d6d7800612fc57638c3c4e0e30bcec26e0f459ec1"/>
+<FILE Name="/boot/config/plugins/zfs-gdrsync/scripts/snap-post.sh" URL="https://raw.githubusercontent.com/BoiledFunn/unraid-zfs-gdrsync/v1.1.0/plugin/scripts/snap-post.sh" SHA256="dc8414e17266df2f16f8f8880e984f87c4a1790c41817edd5c20f22c31ab880c"/>
+<FILE Name="/boot/config/plugins/zfs-gdrsync/scripts/zfs-gdrsync.sh" URL="https://raw.githubusercontent.com/BoiledFunn/unraid-zfs-gdrsync/v1.1.0/plugin/scripts/zfs-gdrsync.sh" SHA256="339843ef064b468bcb048258e78bb88069d7335072f6a0e936b8b50ce4081a48"/>
+<FILE Name="/boot/config/plugins/zfs-gdrsync/sanoid/sanoid.conf" URL="https://raw.githubusercontent.com/BoiledFunn/unraid-zfs-gdrsync/v1.1.0/plugin/sanoid/sanoid.conf" SHA256="fde64f658384e1963f23f25f8d37c05659d59ee629af7da4281ea4fe22448985"/>
+</PLUGIN>
